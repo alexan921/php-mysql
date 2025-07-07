@@ -8,6 +8,50 @@ $con = $db->conectar();
 //session_destroy();
 
 ?>
+
+
+<?php
+if (isset($_POST["guardar"])) 
+{
+    $cedula= $_POST["document"];
+    $nombre= $_POST["names"];
+    $celular= $_POST["phone"];
+    $email= $_POST["email"];
+    $profesion= $_POST["profesion"];
+    $clave= $_POST["contra"];
+
+    $sql = $con -> prepare (query:"SELECT * FROM user WHERE celular='$celular' OR documento='$cedula'");
+    $sql -> execute();
+    $fila = $sql->fetch(mode: PDO::FETCH_ASSOC);
+
+    if($fila) {
+        echo '<script>alert ("DOCUMENTO O EMAIL EXISTEN //CAMBIELOS//");</script>';
+        echo "<script>window.location='index.php'</script>";
+    }
+
+    else 
+    if ($cedula=="" || $nombre=="" || $celular=="" || $email=="" || $profesion=="" || $clave=="")
+    {
+        echo '<script>alert ("EXISTEN DATOS VACIOS");</script>';
+        echo "<script>window.location='index.php'</script>";
+    }
+
+    else
+    {
+    $insertSQL = $con->prepare(query: "INSERT INTO
+        user (document, names, phone, email, profesion, contra)
+        VALUES('$cedula', '$nombre', '$celular', '$email', '$profesion', '$clave'");
+    $insertSQL->execute();
+    echo '<script>alert (" Registro Exitoso ");</script>'; 
+    echo "<script>window.location='index.php'</script>";
+    }
+
+    
+}
+?>
+
+
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -56,7 +100,7 @@ $con = $db->conectar();
     <!-- Navbar Start -->
     <nav class="navbar navbar-expand-lg bg-white navbar-light sticky-top py-0 pe-5">
         <a href="index.html" class="navbar-brand ps-5 me-0">
-            <img src="img/logo3.png">
+            <img src="img/images.jfif" width="90" height="100">
         </a>
        
         <div class="collapse navbar-collapse" id="navbarCollapse">
@@ -79,7 +123,7 @@ $con = $db->conectar();
         <div class="container">
    
 
-<form class="dashboard-container FormularioAjax" method="POST" data-form="save" data-lang="es" autocomplete="off" action="save_user.php" enctype="multipart/form-data" >
+<form class="dashboard-container FormularioAjax" method="POST" data-form="save" data-lang="es" autocomplete="off" enctype="multipart/form-data" >
         <input type="hidden" name="modulo_producto" value="registro">
         <fieldset class="mb-4">
             <legend><i class="fas fa-box"></i> &nbsp; Información Personal</legend>
@@ -142,10 +186,18 @@ $con = $db->conectar();
                     </div>  
 
                     
-                        <div class="form-outline mb-4">
+                        <div class="form-outline mb-4" name="idtipus">
                                     <label for="contra" class="nav-link"><i class="fas fa-user"></i> &nbsp;<strong>Tipo Usuario </strong></label>
                                     <select class="form-control">
-                                        <option value=""></option>
+                                        <option value="">Escoja su opcion...</option>
+                                                     <?php
+                                                     $control = $con->prepare("SELECT * FROM id_tipo_user WHERE id_tipo_user IN (3);");
+                                                     $control->execute();
+                                                     while ($fila = $control ->fetch(PDO::FETCH_ASSOC))
+                                                     {
+                                                     echo"<option value=" . $fila['id_tipo_user'] . ">" . $fila['tip_user'] . "</option>";
+                                                     }
+                                                    ?>
                                     </select>
                                 </div>
                     </div> 
@@ -186,7 +238,7 @@ $con = $db->conectar();
         </p>           
         
         <p class="text-center" style="margin-top: 40px;">
-            <button type="submit" class="btn btn-primary" name="save"><i class="far fa-save"></i> &nbsp; GUARDAR</button>
+            <button type="submit" class="btn btn-primary" name="guardar" id="guardar"><i class="far fa-save"></i> &nbsp; GUARDAR</button>
         </p>
         
     </form>

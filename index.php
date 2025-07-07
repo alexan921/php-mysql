@@ -1,3 +1,14 @@
+<?php
+require 'config/database.php';
+$db = new Database();
+$con = $db->conectar();
+
+//destruir la sesion y borrar todo lo que haya en la pagina
+
+//session_destroy();
+
+?>
+
 
 <!DOCTYPE html>
 <html lang="en">
@@ -40,7 +51,7 @@
     <!-- Navbar Start -->
     <nav class="navbar navbar-expand-lg bg-white navbar-light sticky-top py-0 pe-5">
         <a href="#" class="navbar-brand ps-5 me-0">
-        <img src="img/no_photo.jpg" width="90" height="100">
+        <img src="img/images.jfif" width="90" height="100">
         </a>
 
        
@@ -51,7 +62,7 @@
     <div class="container-xxl py-3">
        
     </div>
-    <div class="container" align="center">
+    <div class="container" align="center" name="inicio">
         <fieldset class="mb-4">
             <legend><i class="fas fa-user" ></i> &nbsp; INICIO DE SESION</legend>
                 <form role="form" class="form-horizontal" method="post" name="form1" id="form1" action="includes/inicio.php" autocomplete="off">
@@ -88,7 +99,7 @@
                     </div>
                     <!-- <div class="form-group" align="center">
                         <a href=""><h6>Registrarse</h6></a>
-                    </div> --> -->
+                    </div> --> 
                     <input type="hidden" name="MM_insert" value="form1">
                 </form>
             </fieldset>
@@ -118,3 +129,39 @@
 </body>
 
 </html>
+<?php
+if ($_POST["inicio"]) {
+
+
+   $cedula = $_POST["documento"];
+   $clave = $_POST["contraseña"];
+
+   $sql = $con->prepare("SELECT * FROM user WHERE documento = '$cedula' AND contraseña = '$clave'");
+   $sql->execute();
+   $fila = $sql->fetch();
+
+   if ($fila) {
+
+      $_SESSION['doc_user'] = $fila['documento'];
+      $_SESSION['tipo'] = $fila['id_tipo_user'];
+
+
+      if ($_SESSION['tipo'] == 1) {
+         header("Location: ../model/admin/index.php");
+         exit();
+      }
+
+      if ($_SESSION['tipo'] == 2) {
+         header("Location: ../model/user/index.php");
+         exit();
+      }
+
+      if ($_SESSION['tipo'] == 3) {
+         header("Location: ../model/funcionario/index.php");
+         exit();
+      }
+   }
+   else {
+      echo('Documento o contraseña incorrecto');
+}}
+?>
